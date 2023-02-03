@@ -1,0 +1,85 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+
+#define UP 0
+#define DOWN 1
+#define LEFT 2
+#define RIGHT 3
+
+#define SNAKE_LENGTH 10
+#define SNAKE_COLOR WHITE
+#define FOOD_COLOR RED
+
+int snakeX[SNAKE_LENGTH];
+int snakeY[SNAKE_LENGTH];
+int foodX;
+int foodY;
+int direction;
+int score;
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.display();
+
+  // Initialize snake position and direction
+  for (int i = 0; i < SNAKE_LENGTH; i++) {
+    snakeX[i] = 50 + i * 8;
+    snakeY[i] = 50;
+  }
+  direction = RIGHT;
+  score = 0;
+
+  // Initialize food position
+  foodX = random(display.width());
+  foodY = random(display.height());
+}
+
+void loop() {
+  // Move the snake in the current direction
+  for (int i = SNAKE_LENGTH - 1; i > 0; i--) {
+    snakeX[i] = snakeX[i - 1];
+    snakeY[i] = snakeY[i - 1];
+  }
+  switch (direction) {
+    case UP:
+      snakeY[0]--;
+      break;
+    case DOWN:
+      snakeY[0]++;
+      break;
+    case LEFT:
+      snakeX[0]--;
+      break;
+    case RIGHT:
+      snakeX[0]++;
+      break;
+  }
+
+  // Check if the snake has eaten the food
+  if (snakeX[0] == foodX && snakeY[0] == foodY) {
+    score++;
+    foodX = random(display.width());
+    foodY = random(display.height());
+  }
+
+  // Clear the display
+  display.clearDisplay();
+
+  // Draw the food
+  display.fillRect(foodX, foodY, 8, 8, FOOD_COLOR);
+
+  // Draw the snake
+  for (int i = 0; i < SNAKE_LENGTH; i++) {
+    display.fillRect(snakeX[i], snakeY[i], 8, 8, SNAKE_COLOR);
+  }
+
+  // Update the display
+  display.display();
+
+  // Add a small delay
+  delay(100);
+}
